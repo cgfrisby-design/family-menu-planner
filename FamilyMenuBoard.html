@@ -22,28 +22,8 @@
   --victoria: #7a9e7e;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: var(--bg);
-  color: var(--deep);
-  font-family: 'Outfit', sans-serif;
-  min-height: 100vh;
-  background-image:
-    radial-gradient(ellipse at 0% 0%, rgba(200,135,58,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 100% 100%, rgba(122,158,126,0.08) 0%, transparent 50%);
-}
-.top-bar {
-  background: var(--deep);
-  color: white;
-  padding: 0.75rem 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
+body { background: var(--bg); color: var(--deep); font-family: 'Outfit', sans-serif; min-height: 100vh; background-image: radial-gradient(ellipse at 0% 0%, rgba(200,135,58,0.08) 0%, transparent 50%), radial-gradient(ellipse at 100% 100%, rgba(122,158,126,0.08) 0%, transparent 50%); }
+.top-bar { background: var(--deep); color: white; padding: 0.75rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; gap: 1rem; flex-wrap: wrap; }
 .brand { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; white-space: nowrap; }
 .brand span { color: var(--accent); }
 .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #888; display: inline-block; margin-left: 8px; vertical-align: middle; transition: background 0.3s; }
@@ -56,8 +36,8 @@ body {
 .member-btn { border: 2px solid rgba(255,255,255,0.2); border-radius: 999px; padding: 0.25rem 0.75rem; font-family: 'Outfit', sans-serif; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
 .member-btn.active-all { background: rgba(255,255,255,0.2); color: white; border-color: white; }
 .member-btn[data-m="Christian"].active { background: var(--christian); color: white; border-color: var(--christian); }
-.member-btn[data-m="Rachelle"].active  { background: var(--rachelle);  color: white; border-color: var(--rachelle); }
-.member-btn[data-m="Victoria"].active  { background: var(--victoria);  color: white; border-color: var(--victoria); }
+.member-btn[data-m="Rachelle"].active { background: var(--rachelle); color: white; border-color: var(--rachelle); }
+.member-btn[data-m="Victoria"].active { background: var(--victoria); color: white; border-color: var(--victoria); }
 .view { display: none; padding: 2rem 1.5rem; max-width: 1200px; margin: 0 auto; }
 .view.active { display: block; }
 .week-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
@@ -89,22 +69,19 @@ body {
 .member-meal-row { display: flex; align-items: center; gap: 0.5rem; }
 .member-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .member-dot.Christian { background: var(--christian); }
-.member-dot.Rachelle  { background: var(--rachelle); }
-.member-dot.Victoria  { background: var(--victoria); }
+.member-dot.Rachelle { background: var(--rachelle); }
+.member-dot.Victoria { background: var(--victoria); }
 .meal-input { flex: 1; border: 1px solid transparent; border-radius: 8px; background: var(--soft); padding: 0.35rem 0.6rem; font-family: 'Outfit', sans-serif; font-size: 0.78rem; color: var(--deep); outline: none; transition: border-color 0.2s, background 0.2s; }
 .meal-input::placeholder { color: var(--muted); opacity: 0.7; }
 .meal-input:focus { border-color: var(--accent); background: white; }
 .meal-input.Christian:focus { border-color: var(--christian); }
-.meal-input.Rachelle:focus  { border-color: var(--rachelle); }
-.meal-input.Victoria:focus  { border-color: var(--victoria); }
+.meal-input.Rachelle:focus { border-color: var(--rachelle); }
+.meal-input.Victoria:focus { border-color: var(--victoria); }
 .send-client-btn { width: 100%; background: none; border: 1px dashed rgba(122,158,126,0.4); border-radius: 8px; padding: 0.4rem; font-family: 'Outfit', sans-serif; font-size: 0.72rem; color: var(--muted); cursor: pointer; transition: all 0.2s; text-align: center; }
 .send-client-btn:hover { border-color: var(--accent2); color: var(--accent2); background: rgba(122,158,126,0.06); }
-body.filter-Christian .member-meal-row.Rachelle,
-body.filter-Christian .member-meal-row.Victoria { display: none; }
-body.filter-Rachelle  .member-meal-row.Christian,
-body.filter-Rachelle  .member-meal-row.Victoria  { display: none; }
-body.filter-Victoria  .member-meal-row.Christian,
-body.filter-Victoria  .member-meal-row.Rachelle  { display: none; }
+body.filter-Christian .member-meal-row.Rachelle, body.filter-Christian .member-meal-row.Victoria { display: none; }
+body.filter-Rachelle .member-meal-row.Christian, body.filter-Rachelle .member-meal-row.Victoria { display: none; }
+body.filter-Victoria .member-meal-row.Christian, body.filter-Victoria .member-meal-row.Rachelle { display: none; }
 .toast { position: fixed; top: 80px; right: 1.5rem; background: var(--deep); color: #90e090; border-radius: var(--radius); padding: 0.7rem 1.2rem; font-size: 0.82rem; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 300; box-shadow: var(--shadow); }
 .toast.show { opacity: 1; }
 .vote-header { margin-bottom: 1.5rem; }
@@ -132,7 +109,7 @@ body.filter-Victoria  .member-meal-row.Rachelle  { display: none; }
 .vote-avg strong { color: var(--accent); font-size: 0.9rem; }
 .vote-status { font-size: 0.68rem; font-weight: 600; padding: 0.18rem 0.55rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.06em; }
 .vote-status.great { background: rgba(122,158,126,0.15); color: var(--accent2); }
-.vote-status.good  { background: rgba(200,135,58,0.15); color: var(--accent); }
+.vote-status.good { background: rgba(200,135,58,0.15); color: var(--accent); }
 .vote-status.maybe { background: rgba(180,180,180,0.2); color: var(--muted); }
 .vote-note { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.7rem; font-family: 'Outfit', sans-serif; font-size: 0.78rem; color: var(--deep); background: var(--soft); outline: none; resize: none; transition: border-color 0.2s; }
 .vote-note:focus { border-color: var(--accent2); background: white; }
@@ -156,11 +133,7 @@ body.filter-Victoria  .member-meal-row.Rachelle  { display: none; }
 .loading-bar-inner { height: 100%; background: var(--accent); border-radius: 999px; animation: loadBar 1.5s ease infinite; }
 @keyframes loadBar { 0%{width:0%} 50%{width:70%} 100%{width:100%} }
 @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-@media (max-width: 680px) {
-  .top-bar { padding: 0.75rem 1rem; }
-  .stats-row { grid-template-columns: repeat(2,1fr); }
-  .view { padding: 1.25rem 1rem; }
-}
+@media (max-width: 680px) { .top-bar { padding: 0.75rem 1rem; } .stats-row { grid-template-columns: repeat(2,1fr); } .view { padding: 1.25rem 1rem; } }
 </style>
 </head>
 <body>
@@ -221,255 +194,67 @@ body.filter-Victoria  .member-meal-row.Rachelle  { display: none; }
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-const firebaseConfig = {
-  apiKey: "AIzaSyCal0J6FYQ4-vksw4t1AsciPk-UHDX6d6U",
-  authDomain: "family-planner-menu.firebaseapp.com",
-  projectId: "family-planner-menu",
-  storageBucket: "family-planner-menu.firebasestorage.app",
-  messagingSenderId: "976273892960",
-  appId: "1:976273892960:web:737c9e1bffe03a6d4dc505"
-};
+const firebaseConfig = { apiKey: "AIzaSyCal0J6FYQ4-vksw4t1AsciPk-UHDX6d6U", authDomain: "family-planner-menu.firebaseapp.com", projectId: "family-planner-menu", storageBucket: "family-planner-menu.firebasestorage.app", messagingSenderId: "976273892960", appId: "1:976273892960:web:737c9e1bffe03a6d4dc505" };
 const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const db = getFirestore(app);
 const MEMBERS = ['Christian','Rachelle','Victoria'];
-const DAYS    = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-const MEALS   = ['Breakfast','Lunch','Dinner'];
-let weekOffset = 0;
-let plannerData = {};
-let votesData   = [];
-let saveTimer   = null;
-let unsubPlanner = null;
-let unsubVotes   = null;
-function getMonday(offset) {
-  offset = offset ?? weekOffset;
-  const d = new Date();
-  const day = d.getDay() || 7;
-  d.setDate(d.getDate() - day + 1 + offset * 7);
-  d.setHours(0,0,0,0);
-  return d;
-}
-function getDates() {
-  const mon = getMonday();
-  return DAYS.map((_,i) => { const d=new Date(mon); d.setDate(d.getDate()+i); return d; });
-}
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const MEALS = ['Breakfast','Lunch','Dinner'];
+let weekOffset=0, plannerData={}, votesData=[], saveTimer=null, unsubPlanner=null, unsubVotes=null;
+const focusedInputs = new Set();
+function getMonday(offset) { offset=offset??weekOffset; const d=new Date(); const day=d.getDay()||7; d.setDate(d.getDate()-day+1+offset*7); d.setHours(0,0,0,0); return d; }
+function getDates() { const mon=getMonday(); return DAYS.map((_,i)=>{ const d=new Date(mon); d.setDate(d.getDate()+i); return d; }); }
 function getWeekKey() { return getMonday().toISOString().slice(0,10); }
 function fmt(d) { return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
 function isToday(d) { const n=new Date(); return d.getDate()===n.getDate()&&d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear(); }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function toast(msg, color) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.style.color = color||'#90e090'; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-function setSyncDot(state) {
-  const dot = document.getElementById('syncDot');
-  dot.className = 'sync-dot'+(state==='live'?' live':state==='saving'?' saving':'');
-}
-window.switchView = function(id, btn) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.tab-pill').forEach(b => b.classList.remove('active'));
-  document.getElementById('view-'+id).classList.add('active');
-  btn.classList.add('active');
-};
-window.setMember = function(m, btn) {
-  document.querySelectorAll('.member-btn').forEach(b => b.classList.remove('active','active-all'));
-  btn.classList.add(m==='All'?'active-all':'active');
-  document.body.className = m==='All'?'':'filter-'+m;
-};
-window.changeWeek = function(dir) { weekOffset += dir; subscribeToPlanner(); };
-function plannerDocId() { return 'week-'+getWeekKey(); }
-function subscribeToPlanner() {
-  if(unsubPlanner) unsubPlanner();
-  const ref = doc(db,'planner',plannerDocId());
+function toast(msg,color) { const t=document.getElementById('toast'); t.textContent=msg; t.style.color=color||'#90e090'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+function setSyncDot(state) { const dot=document.getElementById('syncDot'); dot.className='sync-dot'+(state==='live'?' live':state==='saving'?' saving':''); }
+window.switchView=function(id,btn){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.querySelectorAll('.tab-pill').forEach(b=>b.classList.remove('active')); document.getElementById('view-'+id).classList.add('active'); btn.classList.add('active'); };
+window.setMember=function(m,btn){ document.querySelectorAll('.member-btn').forEach(b=>b.classList.remove('active','active-all')); btn.classList.add(m==='All'?'active-all':'active'); document.body.className=m==='All'?'':'filter-'+m; };
+window.changeWeek=function(dir){ weekOffset+=dir; subscribeToPlanner(); };
+function plannerDocId(){ return 'week-'+getWeekKey(); }
+function subscribeToPlanner(){
+  if(unsubPlanner)unsubPlanner();
   updateWeekHeader();
-  unsubPlanner = onSnapshot(ref, snap => {
-    plannerData = snap.exists() ? (snap.data().days||{}) : {};
-    renderPlanner(); setSyncDot('live');
-  }, () => setSyncDot(''));
+  const ref=doc(db,'planner',plannerDocId());
+  unsubPlanner=onSnapshot(ref,snap=>{
+    const incoming=snap.exists()?(snap.data().days||{}):{};
+    DAYS.forEach((_,di)=>{ MEALS.forEach(meal=>{ MEMBERS.forEach(m=>{ const key=di+'-'+meal+'-'+m; if(!focusedInputs.has(key)){ if(!plannerData[di])plannerData[di]={}; if(!plannerData[di][meal])plannerData[di][meal]={}; plannerData[di][meal][m]=incoming[di]?.[meal]?.[m]||''; } }); }); });
+    updateInputsFromData(); updateStats(); setSyncDot('live');
+  },()=>setSyncDot(''));
 }
-function savePlannerDebounced() {
-  setSyncDot('saving'); clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
-    try {
-      await setDoc(doc(db,'planner',plannerDocId()), { days: plannerData }, { merge: true });
-      setSyncDot('live'); toast('✓ Saved!');
-    } catch(e) { toast('⚠ Save failed','#e07060'); setSyncDot(''); }
-  }, 900);
-}
-function getPlan(di,meal,m) { return plannerData[di]?.[meal]?.[m]||''; }
-function setPlan(di,meal,m,val) {
-  if(!plannerData[di]) plannerData[di]={};
-  if(!plannerData[di][meal]) plannerData[di][meal]={};
-  plannerData[di][meal][m]=val;
-}
-function updateWeekHeader() {
-  const dates = getDates();
-  document.getElementById('weekRange').textContent = fmt(dates[0])+' – '+fmt(dates[6]);
-  document.getElementById('weekLabel').textContent =
-    weekOffset===0?'This Week':weekOffset===1?'Next Week':weekOffset===-1?'Last Week':(weekOffset>0?'+':'')+weekOffset+' wks';
-}
-function renderPlanner() {
-  updateWeekHeader();
-  const dates = getDates();
-  const grid = document.getElementById('mealGrid');
-  grid.innerHTML = '';
-  let totMeals=0, totDays=0;
-  DAYS.forEach((day,di) => {
-    let dayHas=false;
-    const card = document.createElement('div');
-    card.className = 'day-card'+(isToday(dates[di])?' today':'');
-    card.style.animationDelay = (di*0.05)+'s';
-    const bodyHTML = MEALS.map(meal => {
-      const rows = MEMBERS.map(m => {
-        const val = getPlan(di,meal,m);
-        if(val.trim()){totMeals++;dayHas=true;}
-        return `<div class="member-meal-row ${m}"><div class="member-dot ${m}"></div><input class="meal-input ${m}" type="text" placeholder="${m}…" value="${esc(val)}" data-di="${di}" data-meal="${meal}" data-m="${m}"></div>`;
-      }).join('');
-      return `<div class="meal-row"><div class="meal-type-label">${meal}</div><div class="meal-inputs">${rows}</div></div>`;
-    }).join('');
-    if(dayHas) totDays++;
-    card.innerHTML = `
-      <div class="day-card-head">
-        <div><div class="day-name">${day}</div><div class="day-date">${fmt(dates[di])}</div></div>
-        ${isToday(dates[di])?'<span class="today-tag">Today</span>':''}
-      </div>
-      <div class="day-card-body">${bodyHTML}<button class="send-client-btn" data-di="${di}">⭐ Add a meal to Client Shortlist</button></div>`;
-    card.querySelectorAll('.meal-input').forEach(inp => {
-      inp.addEventListener('input', e => {
-        setPlan(+e.target.dataset.di,e.target.dataset.meal,e.target.dataset.m,e.target.value);
-        savePlannerDebounced(); refreshStats();
-      });
-    });
-    card.querySelector('.send-client-btn').addEventListener('click', () => openModal(di));
+function updateInputsFromData(){ document.querySelectorAll('.meal-input').forEach(inp=>{ const key=inp.dataset.di+'-'+inp.dataset.meal+'-'+inp.dataset.m; if(!focusedInputs.has(key)){ const val=getPlan(+inp.dataset.di,inp.dataset.meal,inp.dataset.m); if(inp.value!==val)inp.value=val; } }); }
+function savePlannerDebounced(){ setSyncDot('saving'); clearTimeout(saveTimer); saveTimer=setTimeout(async()=>{ try{ await setDoc(doc(db,'planner',plannerDocId()),{days:plannerData},{merge:true}); setSyncDot('live'); toast('✓ Saved!'); }catch(e){ toast('⚠ Save failed','#e07060'); setSyncDot(''); } },1200); }
+function getPlan(di,meal,m){ return plannerData[di]?.[meal]?.[m]||''; }
+function setPlan(di,meal,m,val){ if(!plannerData[di])plannerData[di]={}; if(!plannerData[di][meal])plannerData[di][meal]={}; plannerData[di][meal][m]=val; }
+function updateWeekHeader(){ const dates=getDates(); document.getElementById('weekRange').textContent=fmt(dates[0])+' – '+fmt(dates[6]); document.getElementById('weekLabel').textContent=weekOffset===0?'This Week':weekOffset===1?'Next Week':weekOffset===-1?'Last Week':(weekOffset>0?'+':'')+weekOffset+' wks'; }
+function renderPlanner(){
+  updateWeekHeader(); const dates=getDates(); const grid=document.getElementById('mealGrid'); grid.innerHTML='';
+  DAYS.forEach((day,di)=>{
+    const card=document.createElement('div'); card.className='day-card'+(isToday(dates[di])?' today':''); card.style.animationDelay=(di*0.05)+'s';
+    const bodyHTML=MEALS.map(meal=>{ const rows=MEMBERS.map(m=>{ const val=getPlan(di,meal,m); return '<div class="member-meal-row '+m+'"><div class="member-dot '+m+'"></div><input class="meal-input '+m+'" type="text" placeholder="'+m+'…" value="'+esc(val)+'" data-di="'+di+'" data-meal="'+meal+'" data-m="'+m+'"></div>'; }).join(''); return '<div class="meal-row"><div class="meal-type-label">'+meal+'</div><div class="meal-inputs">'+rows+'</div></div>'; }).join('');
+    card.innerHTML='<div class="day-card-head"><div><div class="day-name">'+day+'</div><div class="day-date">'+fmt(dates[di])+'</div></div>'+(isToday(dates[di])?'<span class="today-tag">Today</span>':'')+'</div><div class="day-card-body">'+bodyHTML+'<button class="send-client-btn" data-di="'+di+'">⭐ Add a meal to Client Shortlist</button></div>';
+    card.querySelectorAll('.meal-input').forEach(inp=>{ const key=inp.dataset.di+'-'+inp.dataset.meal+'-'+inp.dataset.m; inp.addEventListener('focus',()=>focusedInputs.add(key)); inp.addEventListener('blur',()=>focusedInputs.delete(key)); inp.addEventListener('input',e=>{ setPlan(+e.target.dataset.di,e.target.dataset.meal,e.target.dataset.m,e.target.value); savePlannerDebounced(); updateStats(); }); });
+    card.querySelector('.send-client-btn').addEventListener('click',()=>openModal(di));
     grid.appendChild(card);
   });
-  document.getElementById('sPlanned').textContent=totMeals;
-  document.getElementById('sDays').textContent=totDays;
-  document.getElementById('sLeft').textContent=7-totDays;
+  updateStats();
 }
-function refreshStats() {
-  let t=0,d=0;
-  DAYS.forEach((_,di)=>{
-    let h=false;
-    MEALS.forEach(meal=>MEMBERS.forEach(m=>{if(getPlan(di,meal,m).trim()){t++;h=true;}}));
-    if(h)d++;
-  });
-  document.getElementById('sPlanned').textContent=t;
-  document.getElementById('sDays').textContent=d;
-  document.getElementById('sLeft').textContent=7-d;
-}
-window.closeModal = function(e) {
-  if(!e||e.target===document.getElementById('modalBg'))
-    document.getElementById('modalBg').classList.remove('open');
-};
-function openModal(di) {
-  const meals=[];
-  MEALS.forEach(meal=>MEMBERS.forEach(m=>{
-    const v=getPlan(di,meal,m).trim();
-    if(v&&!meals.includes(v))meals.push(v);
-  }));
-  if(!meals.length){toast('Add some meals first!','#e0c060');return;}
-  const container=document.getElementById('modalMeals');
-  container.innerHTML=meals.map(name=>`<button class="modal-meal-btn">${esc(name)}</button>`).join('');
-  container.querySelectorAll('.modal-meal-btn').forEach((btn,i)=>{
-    btn.addEventListener('click',()=>{sendToVotes(meals[i]);document.getElementById('modalBg').classList.remove('open');});
-  });
-  document.getElementById('modalBg').classList.add('open');
-}
-function subscribeToVotes() {
-  if(unsubVotes) unsubVotes();
-  unsubVotes = onSnapshot(collection(db,'votes'), snap => {
-    votesData = snap.docs.map(d=>({id:d.id,...d.data()}));
-    renderVotes();
-    document.getElementById('sVotes').textContent=votesData.length;
-  });
-}
-async function sendToVotes(name) {
-  if(votesData.find(v=>v.name.toLowerCase()===name.toLowerCase())){toast('Already on shortlist!','#e0c060');return;}
-  await addDoc(collection(db,'votes'),{name,ratings:{},note:''});
-  toast('⭐ Added to Client Shortlist!');
-}
-window.addVote = async function() {
-  const inp=document.getElementById('vAddInput');
-  const name=inp.value.trim();
-  if(!name)return;
-  if(votesData.find(v=>v.name.toLowerCase()===name.toLowerCase())){toast('Already on the list!','#e0c060');return;}
-  await addDoc(collection(db,'votes'),{name,ratings:{},note:''});
-  inp.value='';
-};
+function updateStats(){ let t=0,d=0; DAYS.forEach((_,di)=>{ let h=false; MEALS.forEach(meal=>MEMBERS.forEach(m=>{ if(getPlan(di,meal,m).trim()){t++;h=true;} })); if(h)d++; }); document.getElementById('sPlanned').textContent=t; document.getElementById('sDays').textContent=d; document.getElementById('sLeft').textContent=7-d; }
+window.closeModal=function(e){ if(!e||e.target===document.getElementById('modalBg'))document.getElementById('modalBg').classList.remove('open'); };
+function openModal(di){ const meals=[]; MEALS.forEach(meal=>MEMBERS.forEach(m=>{ const v=getPlan(di,meal,m).trim(); if(v&&!meals.includes(v))meals.push(v); })); if(!meals.length){toast('Add some meals first!','#e0c060');return;} const container=document.getElementById('modalMeals'); container.innerHTML=meals.map(name=>'<button class="modal-meal-btn">'+esc(name)+'</button>').join(''); container.querySelectorAll('.modal-meal-btn').forEach((btn,i)=>{ btn.addEventListener('click',()=>{ sendToVotes(meals[i]); document.getElementById('modalBg').classList.remove('open'); }); }); document.getElementById('modalBg').classList.add('open'); }
+function subscribeToVotes(){ if(unsubVotes)unsubVotes(); unsubVotes=onSnapshot(collection(db,'votes'),snap=>{ votesData=snap.docs.map(d=>({id:d.id,...d.data()})); renderVotes(); document.getElementById('sVotes').textContent=votesData.length; }); }
+async function sendToVotes(name){ if(votesData.find(v=>v.name.toLowerCase()===name.toLowerCase())){toast('Already on shortlist!','#e0c060');return;} await addDoc(collection(db,'votes'),{name,ratings:{},note:''}); toast('⭐ Added to Client Shortlist!'); }
+window.addVote=async function(){ const inp=document.getElementById('vAddInput'); const name=inp.value.trim(); if(!name)return; if(votesData.find(v=>v.name.toLowerCase()===name.toLowerCase())){toast('Already on the list!','#e0c060');return;} await addDoc(collection(db,'votes'),{name,ratings:{},note:''}); inp.value=''; };
 async function deleteVote(id){ await deleteDoc(doc(db,'votes',id)); }
-async function setRating(id,m,stars){
-  const v=votesData.find(x=>x.id===id);
-  if(!v)return;
-  const newRatings={...v.ratings,[m]:v.ratings[m]===stars?0:stars};
-  await updateDoc(doc(db,'votes',id),{ratings:newRatings});
-}
+async function setRating(id,m,stars){ const v=votesData.find(x=>x.id===id); if(!v)return; const newRatings={...v.ratings,[m]:v.ratings[m]===stars?0:stars}; await updateDoc(doc(db,'votes',id),{ratings:newRatings}); }
 async function setNote(id,val){ await updateDoc(doc(db,'votes',id),{note:val}); }
-function avgRating(vote){
-  const vals=Object.values(vote.ratings||{}).filter(x=>x>0);
-  if(!vals.length)return null;
-  return (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
-}
-function statusLabel(avg){
-  if(avg===null)return '';
-  if(avg>=4)return '<span class="vote-status great">✓ Great pick</span>';
-  if(avg>=2.5)return '<span class="vote-status good">~ Worth considering</span>';
-  return '<span class="vote-status maybe">✗ Maybe not</span>';
-}
-function renderVotes(){
-  const grid=document.getElementById('voteGrid');
-  if(!votesData.length){
-    grid.innerHTML=`<div class="empty-state"><div class="icon">⭐</div><p>No meals on the shortlist yet.<br>Add one above or tap a day card in the planner.</p></div>`;
-    return;
-  }
-  grid.innerHTML='';
-  const colors={Christian:'var(--christian)',Rachelle:'var(--rachelle)',Victoria:'var(--victoria)'};
-  votesData.forEach((vote,vi)=>{
-    const avg=avgRating(vote);
-    const card=document.createElement('div');
-    card.className='vote-card';
-    card.style.animationDelay=(vi*0.06)+'s';
-    const memberRows=MEMBERS.map(m=>{
-      const r=vote.ratings?.[m]||0;
-      const stars=[1,2,3,4,5].map(s=>`<span class="star${s<=r?' lit':''}" data-id="${vote.id}" data-m="${m}" data-s="${s}">★</span>`).join('');
-      return `<div class="vote-member-row"><div class="vote-member-name"><span style="width:8px;height:8px;border-radius:50%;background:${colors[m]};display:inline-block;flex-shrink:0"></span>${m}</div><div class="stars">${stars}</div></div>`;
-    }).join('');
-    card.innerHTML=`
-      <div class="vote-card-head"><div class="vote-meal-name">${esc(vote.name)}</div><button class="vote-delete" data-id="${vote.id}">✕</button></div>
-      <div class="vote-card-body">
-        ${memberRows}
-        ${avg!==null?`<div class="vote-avg"><span>Average: <strong>${avg}/5</strong></span>${statusLabel(avg)}</div>`:''}
-        <textarea class="vote-note" placeholder="Notes (allergens, tweaks…)" rows="2" data-id="${vote.id}">${esc(vote.note||'')}</textarea>
-      </div>`;
-    card.querySelectorAll('.star').forEach(s=>{
-      s.addEventListener('click',e=>setRating(e.target.dataset.id,e.target.dataset.m,+e.target.dataset.s));
-      s.addEventListener('mouseover',e=>{
-        const row=e.target.closest('.stars');
-        const hov=+e.target.dataset.s;
-        row.querySelectorAll('.star').forEach((st,i)=>st.style.color=i<hov?'var(--accent)':'#ddd');
-      });
-      s.addEventListener('mouseout',e=>{
-        const row=e.target.closest('.stars');
-        const id=e.target.dataset.id,m=e.target.dataset.m;
-        const r=(votesData.find(v=>v.id===id)?.ratings?.[m])||0;
-        row.querySelectorAll('.star').forEach((st,i)=>st.style.color=i<r?'var(--accent)':'#ddd');
-      });
-    });
-    card.querySelector('.vote-delete').addEventListener('click',e=>deleteVote(e.target.dataset.id));
-    let noteTimer;
-    card.querySelector('.vote-note').addEventListener('input',e=>{
-      clearTimeout(noteTimer);
-      noteTimer=setTimeout(()=>setNote(e.target.dataset.id,e.target.value),800);
-    });
-    grid.appendChild(card);
-  });
-}
-setTimeout(()=>{
-  document.getElementById('loadingScreen').classList.add('hide');
-  setTimeout(()=>document.getElementById('loadingScreen').style.display='none',500);
-},1200);
-subscribeToPlanner();
-subscribeToVotes();
+function avgRating(vote){ const vals=Object.values(vote.ratings||{}).filter(x=>x>0); if(!vals.length)return null; return (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1); }
+function statusLabel(avg){ if(avg===null)return ''; if(avg>=4)return '<span class="vote-status great">✓ Great pick</span>'; if(avg>=2.5)return '<span class="vote-status good">~ Worth considering</span>'; return '<span class="vote-status maybe">✗ Maybe not</span>'; }
+function renderVotes(){ const grid=document.getElementById('voteGrid'); if(!votesData.length){ grid.innerHTML='<div class="empty-state"><div class="icon">⭐</div><p>No meals on the shortlist yet.<br>Add one above or tap a day card in the planner.</p></div>'; return; } grid.innerHTML=''; const colors={Christian:'var(--christian)',Rachelle:'var(--rachelle)',Victoria:'var(--victoria)'}; votesData.forEach((vote,vi)=>{ const avg=avgRating(vote); const card=document.createElement('div'); card.className='vote-card'; card.style.animationDelay=(vi*0.06)+'s'; const memberRows=MEMBERS.map(m=>{ const r=vote.ratings?.[m]||0; const stars=[1,2,3,4,5].map(s=>'<span class="star'+(s<=r?' lit':'')+'" data-id="'+vote.id+'" data-m="'+m+'" data-s="'+s+'">★</span>').join(''); return '<div class="vote-member-row"><div class="vote-member-name"><span style="width:8px;height:8px;border-radius:50%;background:'+colors[m]+';display:inline-block;flex-shrink:0"></span>'+m+'</div><div class="stars">'+stars+'</div></div>'; }).join(''); card.innerHTML='<div class="vote-card-head"><div class="vote-meal-name">'+esc(vote.name)+'</div><button class="vote-delete" data-id="'+vote.id+'">✕</button></div><div class="vote-card-body">'+memberRows+(avg!==null?'<div class="vote-avg"><span>Average: <strong>'+avg+'/5</strong></span>'+statusLabel(avg)+'</div>':'')+'<textarea class="vote-note" placeholder="Notes (allergens, tweaks…)" rows="2" data-id="'+vote.id+'">'+esc(vote.note||'')+'</textarea></div>'; card.querySelectorAll('.star').forEach(s=>{ s.addEventListener('click',e=>setRating(e.target.dataset.id,e.target.dataset.m,+e.target.dataset.s)); s.addEventListener('mouseover',e=>{ const row=e.target.closest('.stars'); const hov=+e.target.dataset.s; row.querySelectorAll('.star').forEach((st,i)=>st.style.color=i<hov?'var(--accent)':'#ddd'); }); s.addEventListener('mouseout',e=>{ const row=e.target.closest('.stars'); const id=e.target.dataset.id,m=e.target.dataset.m; const r=(votesData.find(v=>v.id===id)?.ratings?.[m])||0; row.querySelectorAll('.star').forEach((st,i)=>st.style.color=i<r?'var(--accent)':'#ddd'); }); }); card.querySelector('.vote-delete').addEventListener('click',e=>deleteVote(e.target.dataset.id)); let noteTimer; card.querySelector('.vote-note').addEventListener('input',e=>{ clearTimeout(noteTimer); noteTimer=setTimeout(()=>setNote(e.target.dataset.id,e.target.value),1000); }); grid.appendChild(card); }); }
+setTimeout(()=>{ document.getElementById('loadingScreen').classList.add('hide'); setTimeout(()=>document.getElementById('loadingScreen').style.display='none',500); },1200);
+renderPlanner(); subscribeToPlanner(); subscribeToVotes();
 </script>
 </body>
 </html>
