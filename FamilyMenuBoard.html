@@ -1,1358 +1,475 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#1a1a2e" />
-  <meta name="description" content="Family Menu Board - plan your meals together" />
-  <title>Family Menu Board</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --bg: #0f0f1a;
-      --surface: #1a1a2e;
-      --surface2: #22223b;
-      --accent: #f4a261;
-      --accent2: #e76f51;
-      --green: #52b788;
-      --pink: #ff6b9d;
-      --blue: #4cc9f0;
-      --purple: #7b5ea7;
-      --text: #f0ead6;
-      --text-muted: #9a8c98;
-      --border: rgba(255,255,255,0.08);
-      --radius: 16px;
-      --shadow: 0 8px 32px rgba(0,0,0,0.4);
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(ellipse at 20% 20%, rgba(244,162,97,0.06) 0%, transparent 50%),
-                  radial-gradient(ellipse at 80% 80%, rgba(76,201,240,0.05) 0%, transparent 50%),
-                  radial-gradient(ellipse at 50% 50%, rgba(123,94,167,0.04) 0%, transparent 60%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* SYNC STATUS */
-    .sync-bar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 999;
-      height: 3px;
-      background: transparent;
-      transition: background 0.3s;
-    }
-    .sync-bar.syncing {
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      animation: syncPulse 1s ease infinite;
-    }
-    .sync-bar.error { background: var(--accent2); }
-
-    @keyframes syncPulse {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-
-    .sync-indicator {
-      position: fixed;
-      top: 10px;
-      right: 16px;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      color: var(--text-muted);
-      background: var(--surface);
-      padding: 5px 10px;
-      border-radius: 50px;
-      border: 1px solid var(--border);
-    }
-
-    .sync-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--text-muted);
-      transition: background 0.3s;
-    }
-    .sync-dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
-    .sync-dot.syncing { background: var(--accent); }
-    .sync-dot.error { background: var(--accent2); }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    /* HEADER */
-    header {
-      position: relative;
-      z-index: 10;
-      padding: 40px 24px 0;
-      text-align: center;
-    }
-
-    .logo-mark {
-      font-size: 10px;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--accent);
-      font-weight: 600;
-      margin-bottom: 8px;
-      opacity: 0.8;
-    }
-
-    h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(2rem, 8vw, 3.2rem);
-      font-weight: 900;
-      line-height: 1.05;
-      background: linear-gradient(135deg, var(--text) 0%, var(--accent) 60%, var(--accent2) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 6px;
-    }
-
-    .subtitle {
-      color: var(--text-muted);
-      font-size: 14px;
-      font-weight: 300;
-      letter-spacing: 0.5px;
-    }
-
-    /* FAMILY SWITCHER */
-    .family-bar {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      padding: 20px 24px 0;
-      flex-wrap: wrap;
-    }
-
-    .family-btn {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      padding: 8px 16px;
-      border-radius: 50px;
-      border: 2px solid var(--border);
-      background: var(--surface);
-      color: var(--text-muted);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .family-btn .avatar {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .family-btn.active, .family-btn:hover {
-      border-color: var(--accent);
-      color: var(--text);
-      background: rgba(244,162,97,0.1);
-    }
-
-    .family-btn.active {
-      box-shadow: 0 0 16px rgba(244,162,97,0.2);
-    }
-
-    /* TABS */
-    .tabs {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      gap: 4px;
-      padding: 20px 24px 0;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .tab {
-      padding: 9px 20px;
-      border-radius: 50px;
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .tab.active {
-      background: var(--accent);
-      color: #0f0f1a;
-      font-weight: 700;
-    }
-
-    /* MAIN CONTENT */
-    main {
-      position: relative;
-      z-index: 10;
-      padding: 20px 16px 100px;
-      max-width: 700px;
-      margin: 0 auto;
-    }
-
-    .view { display: none; }
-    .view.active { display: block; }
-
-    /* ADD IDEA FORM */
-    .add-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 20px;
-      animation: slideDown 0.3s ease;
-    }
-
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .add-card h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 17px;
-      margin-bottom: 14px;
-      color: var(--accent);
-    }
-
-    .form-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-
-    .form-group {
-      flex: 1;
-      min-width: 140px;
-    }
-
-    label {
-      display: block;
-      font-size: 11px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 11px 14px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
-    }
-
-    select option { background: var(--surface2); }
-
-    .tag-picker {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-      margin-top: 4px;
-    }
-
-    .tag-opt {
-      padding: 5px 12px;
-      border-radius: 50px;
-      border: 1.5px solid var(--border);
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 12px;
-      font-family: 'DM Sans', sans-serif;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .tag-opt.selected {
-      border-color: var(--accent);
-      background: rgba(244,162,97,0.15);
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    .btn-submit {
-      width: 100%;
-      margin-top: 14px;
-      padding: 13px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border: none;
-      border-radius: 12px;
-      color: #fff;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      letter-spacing: 0.3px;
-      transition: opacity 0.2s, transform 0.15s;
-    }
-
-    .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); }
-    .btn-submit:active { transform: translateY(0); }
-    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    /* ADD TRIGGER */
-    .add-trigger {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 18px;
-      background: var(--surface);
-      border: 1.5px dashed var(--border);
-      border-radius: var(--radius);
-      color: var(--text-muted);
-      font-size: 14px;
-      cursor: pointer;
-      margin-bottom: 20px;
-      transition: all 0.2s;
-    }
-
-    .add-trigger:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .add-trigger .plus {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: #0f0f1a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    /* FILTER BAR */
-    .filter-bar {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-
-    .filter-chip {
-      padding: 5px 13px;
-      border-radius: 50px;
-      border: 1.5px solid var(--border);
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 12px;
-      font-family: 'DM Sans', sans-serif;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .filter-chip.active {
-      border-color: var(--blue);
-      background: rgba(76,201,240,0.12);
-      color: var(--blue);
-      font-weight: 600;
-    }
-
-    /* MEAL CARDS */
-    .meals-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .meal-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      animation: fadeIn 0.3s ease;
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .meal-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
-    }
-
-    .meal-card::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      border-radius: 3px 0 0 3px;
-    }
-
-    .meal-card[data-who="Dad"]::before { background: var(--accent); }
-    .meal-card[data-who="Mum"]::before { background: var(--pink); }
-    .meal-card[data-who="Daughter"]::before { background: var(--blue); }
-    .meal-card[data-who="Everyone"]::before { background: var(--green); }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .meal-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 10px;
-    }
-
-    .meal-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 17px;
-      font-weight: 700;
-      line-height: 1.2;
-      flex: 1;
-    }
-
-    .meal-actions {
-      display: flex;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .action-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      border: 1.5px solid var(--border);
-      background: var(--surface2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 15px;
-      transition: all 0.15s;
-      color: var(--text-muted);
-    }
-
-    .action-btn:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.1); }
-    .action-btn.voted { background: rgba(82,183,136,0.2); border-color: var(--green); color: var(--green); }
-    .action-btn.saved { background: rgba(231,111,81,0.2); border-color: var(--accent2); color: var(--accent2); }
-
-    .vote-count {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--green);
-      align-self: center;
-      min-width: 16px;
-    }
-
-    .meal-meta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-
-    .who-badge {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .who-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    [data-who="Dad"] .who-dot { background: var(--accent); }
-    [data-who="Mum"] .who-dot { background: var(--pink); }
-    [data-who="Daughter"] .who-dot { background: var(--blue); }
-    [data-who="Everyone"] .who-dot { background: var(--green); }
-
-    .tag {
-      padding: 3px 9px;
-      border-radius: 50px;
-      font-size: 11px;
-      font-weight: 600;
-      background: rgba(255,255,255,0.06);
-      color: var(--text-muted);
-      letter-spacing: 0.3px;
-    }
-
-    .meal-notes {
-      margin-top: 8px;
-      font-size: 13px;
-      color: var(--text-muted);
-      font-style: italic;
-      line-height: 1.4;
-    }
-
-    .client-star {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      font-size: 11px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #fff;
-      padding: 3px 9px;
-      border-radius: 50px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-
-    /* EMPTY STATE */
-    .empty {
-      text-align: center;
-      padding: 50px 20px;
-      color: var(--text-muted);
-    }
-
-    .empty .emoji { font-size: 48px; margin-bottom: 12px; }
-    .empty p { font-size: 15px; }
-
-    /* WEEK VIEW */
-    .week-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .day-row {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-
-    .day-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .day-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 15px;
-      font-weight: 700;
-    }
-
-    .day-date {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .day-meals {
-      padding: 10px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      min-height: 48px;
-    }
-
-    .day-meal-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-    }
-
-    .day-meal-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent);
-      flex-shrink: 0;
-    }
-
-    .assign-btn {
-      font-size: 12px;
-      padding: 5px 12px;
-      border: 1.5px dashed var(--border);
-      border-radius: 50px;
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      transition: all 0.15s;
-    }
-
-    .assign-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* CLIENT MENU */
-    .client-section { margin-bottom: 24px; }
-
-    .section-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .section-title span { font-size: 20px; }
-
-    .client-card {
-      background: linear-gradient(135deg, rgba(244,162,97,0.1), rgba(231,111,81,0.05));
-      border: 1px solid rgba(244,162,97,0.2);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .client-meal-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .client-meal-tag {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 3px;
-    }
-
-    .client-votes {
-      font-size: 13px;
-      color: var(--green);
-      font-weight: 700;
-    }
-
-    .remove-client-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 16px;
-      padding: 4px;
-      transition: color 0.15s;
-    }
-
-    .remove-client-btn:hover { color: var(--accent2); }
-
-    /* FAB */
-    .fab {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border: none;
-      color: #fff;
-      font-size: 26px;
-      cursor: pointer;
-      box-shadow: 0 4px 20px rgba(244,162,97,0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .fab:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(244,162,97,0.5); }
-    .fab:active { transform: scale(0.96); }
-
-    /* TOAST */
-    .toast {
-      position: fixed;
-      bottom: 90px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 50px;
-      padding: 10px 20px;
-      font-size: 13px;
-      font-weight: 500;
-      opacity: 0;
-      transition: all 0.3s ease;
-      z-index: 200;
-      white-space: nowrap;
-      pointer-events: none;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* MONTH VIEW */
-    .month-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-      margin-bottom: 16px;
-    }
-
-    .month-day-label {
-      text-align: center;
-      font-size: 10px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      padding: 6px 0;
-      font-weight: 600;
-    }
-
-    .month-day {
-      aspect-ratio: 1;
-      border-radius: 10px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 4px;
-      cursor: pointer;
-      transition: all 0.15s;
-      position: relative;
-    }
-
-    .month-day:hover { border-color: var(--accent); }
-    .month-day.has-meal { border-color: rgba(244,162,97,0.3); background: rgba(244,162,97,0.05); }
-    .month-day.today { border-color: var(--accent); box-shadow: 0 0 12px rgba(244,162,97,0.2); }
-    .month-day-num { font-size: 13px; font-weight: 600; }
-    .month-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); margin-top: 3px; }
-    .month-day.empty-day { opacity: 0; pointer-events: none; }
-
-    /* STATS BAR */
-    .stats-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .stat-box {
-      flex: 1;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      text-align: center;
-    }
-
-    .stat-num {
-      font-family: 'Playfair Display', serif;
-      font-size: 26px;
-      font-weight: 900;
-      color: var(--accent);
-    }
-
-    .stat-label {
-      font-size: 11px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-top: 2px;
-    }
-
-    /* LOADING */
-    .loading-overlay {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      transition: opacity 0.5s ease;
-    }
-
-    .loading-overlay.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .loading-spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-bottom: 16px;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .loading-text {
-      font-family: 'Playfair Display', serif;
-      font-size: 18px;
-      color: var(--accent);
-    }
-
-    @media (max-width: 400px) {
-      .form-row { flex-direction: column; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frisby Family Menu Board</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --soft: #f0ece3;
+  --deep: #1c1a16;
+  --accent: #c8873a;
+  --accent2: #7a9e7e;
+  --muted: #9a9180;
+  --border: rgba(0,0,0,0.08);
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  --radius: 16px;
+  --christian: #c8873a;
+  --rachelle: #b5657a;
+  --victoria: #7a9e7e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--deep);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at 0% 0%, rgba(200,135,58,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(122,158,126,0.08) 0%, transparent 50%);
+}
+.top-bar {
+  background: var(--deep);
+  color: white;
+  padding: 0.75rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.brand { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; white-space: nowrap; }
+.brand span { color: var(--accent); }
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #888; display: inline-block; margin-left: 8px; vertical-align: middle; transition: background 0.3s; }
+.sync-dot.live { background: #4caf50; box-shadow: 0 0 6px #4caf50; }
+.sync-dot.saving { background: var(--accent); }
+.tab-pills { display: flex; background: rgba(255,255,255,0.08); border-radius: 999px; padding: 4px; gap: 2px; }
+.tab-pill { background: none; border: none; color: rgba(255,255,255,0.55); font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 500; padding: 0.35rem 0.9rem; border-radius: 999px; cursor: pointer; transition: background 0.2s, color 0.2s; white-space: nowrap; }
+.tab-pill.active { background: var(--accent); color: white; }
+.member-select { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.member-btn { border: 2px solid rgba(255,255,255,0.2); border-radius: 999px; padding: 0.25rem 0.75rem; font-family: 'Outfit', sans-serif; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
+.member-btn.active-all { background: rgba(255,255,255,0.2); color: white; border-color: white; }
+.member-btn[data-m="Christian"].active { background: var(--christian); color: white; border-color: var(--christian); }
+.member-btn[data-m="Rachelle"].active  { background: var(--rachelle);  color: white; border-color: var(--rachelle); }
+.member-btn[data-m="Victoria"].active  { background: var(--victoria);  color: white; border-color: var(--victoria); }
+.view { display: none; padding: 2rem 1.5rem; max-width: 1200px; margin: 0 auto; }
+.view.active { display: block; }
+.week-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+.week-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; }
+.week-title small { display: block; font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 400; color: var(--muted); margin-top: 0.1rem; }
+.week-nav { display: flex; align-items: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px 8px; box-shadow: var(--shadow); }
+.week-nav button { background: none; border: none; cursor: pointer; color: var(--muted); width: 32px; height: 32px; border-radius: 50%; font-size: 1rem; transition: background 0.2s, color 0.2s; display: flex; align-items: center; justify-content: center; }
+.week-nav button:hover { background: var(--soft); color: var(--deep); }
+.week-nav span { font-size: 0.82rem; font-weight: 500; padding: 0 0.25rem; white-space: nowrap; }
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.75rem; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.2rem; box-shadow: var(--shadow); }
+.stat-card .val { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; color: var(--accent); line-height: 1; }
+.stat-card .lbl { font-size: 0.72rem; color: var(--muted); font-weight: 400; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.meal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }
+.day-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; animation: fadeUp 0.4s ease both; }
+.day-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
+.day-card.today { border-color: var(--accent); }
+.day-card-head { background: var(--soft); padding: 0.85rem 1.1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+.day-card.today .day-card-head { background: var(--accent); }
+.day-card.today .day-name { color: white; }
+.day-card.today .day-date { color: rgba(255,255,255,0.75); }
+.day-name { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 700; }
+.day-date { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
+.today-tag { background: white; color: var(--accent); font-size: 0.62rem; font-weight: 700; padding: 0.18rem 0.5rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.06em; }
+.day-card-body { padding: 0.9rem 1.1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.meal-row { display: flex; flex-direction: column; gap: 0.3rem; }
+.meal-type-label { font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.meal-inputs { display: flex; flex-direction: column; gap: 0.22rem; }
+.member-meal-row { display: flex; align-items: center; gap: 0.5rem; }
+.member-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.member-dot.Christian { background: var(--christian); }
+.member-dot.Rachelle  { background: var(--rachelle); }
+.member-dot.Victoria  { background: var(--victoria); }
+.meal-input { flex: 1; border: 1px solid transparent; border-radius: 8px; background: var(--soft); padding: 0.35rem 0.6rem; font-family: 'Outfit', sans-serif; font-size: 0.78rem; color: var(--deep); outline: none; transition: border-color 0.2s, background 0.2s; }
+.meal-input::placeholder { color: var(--muted); opacity: 0.7; }
+.meal-input:focus { border-color: var(--accent); background: white; }
+.meal-input.Christian:focus { border-color: var(--christian); }
+.meal-input.Rachelle:focus  { border-color: var(--rachelle); }
+.meal-input.Victoria:focus  { border-color: var(--victoria); }
+.send-client-btn { width: 100%; background: none; border: 1px dashed rgba(122,158,126,0.4); border-radius: 8px; padding: 0.4rem; font-family: 'Outfit', sans-serif; font-size: 0.72rem; color: var(--muted); cursor: pointer; transition: all 0.2s; text-align: center; }
+.send-client-btn:hover { border-color: var(--accent2); color: var(--accent2); background: rgba(122,158,126,0.06); }
+body.filter-Christian .member-meal-row.Rachelle,
+body.filter-Christian .member-meal-row.Victoria { display: none; }
+body.filter-Rachelle  .member-meal-row.Christian,
+body.filter-Rachelle  .member-meal-row.Victoria  { display: none; }
+body.filter-Victoria  .member-meal-row.Christian,
+body.filter-Victoria  .member-meal-row.Rachelle  { display: none; }
+.toast { position: fixed; top: 80px; right: 1.5rem; background: var(--deep); color: #90e090; border-radius: var(--radius); padding: 0.7rem 1.2rem; font-size: 0.82rem; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 300; box-shadow: var(--shadow); }
+.toast.show { opacity: 1; }
+.vote-header { margin-bottom: 1.5rem; }
+.vote-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; }
+.vote-header p { color: var(--muted); font-size: 0.85rem; margin-top: 0.3rem; }
+.vote-add-row { display: flex; gap: 0.75rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+.vote-input { flex: 1; min-width: 200px; border: 1px solid var(--border); border-radius: var(--radius); padding: 0.7rem 1rem; font-family: 'Outfit', sans-serif; font-size: 0.9rem; background: var(--surface); color: var(--deep); outline: none; transition: border-color 0.2s; box-shadow: var(--shadow); }
+.vote-input:focus { border-color: var(--accent); }
+.btn-add { background: var(--deep); color: white; border: none; border-radius: var(--radius); padding: 0.7rem 1.4rem; font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.85rem; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+.btn-add:hover { background: var(--accent); }
+.vote-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+.vote-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; animation: fadeUp 0.4s ease both; }
+.vote-card-head { padding: 1rem 1.2rem; background: var(--soft); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+.vote-meal-name { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 700; flex: 1; }
+.vote-delete { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; transition: color 0.2s; }
+.vote-delete:hover { color: #c0605a; }
+.vote-card-body { padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: 0.9rem; }
+.vote-member-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.vote-member-name { font-size: 0.8rem; font-weight: 500; min-width: 80px; display: flex; align-items: center; gap: 0.4rem; }
+.stars { display: flex; gap: 3px; }
+.star { font-size: 1.2rem; cursor: pointer; color: #ddd; transition: color 0.15s, transform 0.15s; user-select: none; line-height: 1; }
+.star.lit { color: var(--accent); }
+.star:hover { transform: scale(1.2); }
+.vote-avg { font-size: 0.72rem; color: var(--muted); padding-top: 0.5rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.vote-avg strong { color: var(--accent); font-size: 0.9rem; }
+.vote-status { font-size: 0.68rem; font-weight: 600; padding: 0.18rem 0.55rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.06em; }
+.vote-status.great { background: rgba(122,158,126,0.15); color: var(--accent2); }
+.vote-status.good  { background: rgba(200,135,58,0.15); color: var(--accent); }
+.vote-status.maybe { background: rgba(180,180,180,0.2); color: var(--muted); }
+.vote-note { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.7rem; font-family: 'Outfit', sans-serif; font-size: 0.78rem; color: var(--deep); background: var(--soft); outline: none; resize: none; transition: border-color 0.2s; }
+.vote-note:focus { border-color: var(--accent2); background: white; }
+.vote-note::placeholder { color: var(--muted); }
+.empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); grid-column: 1/-1; }
+.empty-state .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 400; display: none; align-items: center; justify-content: center; }
+.modal-bg.open { display: flex; }
+.modal { background: white; border-radius: var(--radius); padding: 1.5rem; max-width: 380px; width: 90%; box-shadow: 0 24px 64px rgba(0,0,0,0.2); }
+.modal h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; }
+.modal p { font-size: 0.82rem; color: var(--muted); margin-bottom: 1rem; }
+.modal-meals { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; }
+.modal-meal-btn { background: var(--soft); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.9rem; font-family: 'Outfit', sans-serif; font-size: 0.85rem; cursor: pointer; text-align: left; transition: all 0.2s; }
+.modal-meal-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+.modal-cancel { background: none; border: none; color: var(--muted); font-family: 'Outfit', sans-serif; font-size: 0.8rem; cursor: pointer; width: 100%; text-align: center; }
+.loading-screen { position: fixed; inset: 0; background: var(--deep); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; transition: opacity 0.5s; }
+.loading-screen.hide { opacity: 0; pointer-events: none; }
+.loading-logo { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; color: white; margin-bottom: 1rem; }
+.loading-logo span { color: var(--accent); }
+.loading-bar { width: 200px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 999px; overflow: hidden; }
+.loading-bar-inner { height: 100%; background: var(--accent); border-radius: 999px; animation: loadBar 1.5s ease infinite; }
+@keyframes loadBar { 0%{width:0%} 50%{width:70%} 100%{width:100%} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+@media (max-width: 680px) {
+  .top-bar { padding: 0.75rem 1rem; }
+  .stats-row { grid-template-columns: repeat(2,1fr); }
+  .view { padding: 1.25rem 1rem; }
+}
+</style>
 </head>
 <body>
-
-<!-- LOADING SCREEN -->
-<div class="loading-overlay" id="loading-overlay">
-  <div class="loading-spinner"></div>
-  <div class="loading-text">Connecting…</div>
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-logo">Frisby <span>Family</span></div>
+  <div class="loading-bar"><div class="loading-bar-inner"></div></div>
 </div>
-
-<!-- SYNC INDICATOR -->
-<div class="sync-bar" id="sync-bar"></div>
-<div class="sync-indicator" id="sync-indicator">
-  <div class="sync-dot" id="sync-dot"></div>
-  <span id="sync-label">Connecting</span>
-</div>
-
-<header>
-  <div class="logo-mark">✦ Private Chef · Family Edition</div>
-  <h1>The Menu Board</h1>
-  <p class="subtitle">What shall we eat this week?</p>
-</header>
-
-<!-- FAMILY SWITCHER -->
-<div class="family-bar">
-  <button class="family-btn active" onclick="setWho('Dad')" id="btn-Dad">
-    <span class="avatar" style="background:rgba(244,162,97,0.2);color:var(--accent)">👨‍🍳</span> Dad
-  </button>
-  <button class="family-btn" onclick="setWho('Mum')" id="btn-Mum">
-    <span class="avatar" style="background:rgba(255,107,157,0.2);color:var(--pink)">👩</span> Mum
-  </button>
-  <button class="family-btn" onclick="setWho('Daughter')" id="btn-Daughter">
-    <span class="avatar" style="background:rgba(76,201,240,0.2);color:var(--blue)">👧</span> Daughter
-  </button>
-</div>
-
-<!-- TABS -->
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('ideas', this)">💡 Ideas</button>
-  <button class="tab" onclick="switchTab('week', this)">📅 This Week</button>
-  <button class="tab" onclick="switchTab('month', this)">🗓 Month</button>
-  <button class="tab" onclick="switchTab('client', this)">⭐ Client Menu</button>
-</div>
-
-<main>
-
-  <!-- IDEAS VIEW -->
-  <div class="view active" id="view-ideas">
-    <div class="stats-row">
-      <div class="stat-box">
-        <div class="stat-num" id="stat-total">0</div>
-        <div class="stat-label">Ideas</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-num" id="stat-votes">0</div>
-        <div class="stat-label">Votes</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-num" id="stat-client">0</div>
-        <div class="stat-label">Client Picks</div>
-      </div>
-    </div>
-
-    <div class="add-trigger" id="add-trigger" onclick="toggleForm()">
-      <div class="plus">+</div>
-      <span>Add a meal idea…</span>
-    </div>
-
-    <div class="add-card" id="add-form" style="display:none">
-      <h3>✦ New Meal Idea</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Meal Name</label>
-          <input type="text" id="meal-name" placeholder="e.g. Lamb Tagine" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Adding as</label>
-          <select id="meal-who">
-            <option value="Dad">👨‍🍳 Dad</option>
-            <option value="Mum">👩 Mum</option>
-            <option value="Daughter">👧 Daughter</option>
-            <option value="Everyone">👨‍👩‍👧 Everyone</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>When</label>
-          <select id="meal-when">
-            <option value="">Anytime</option>
-            <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
-            <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group" style="margin-bottom:10px">
-        <label>Cuisine Tag</label>
-        <div class="tag-picker" id="tag-picker">
-          <button class="tag-opt" onclick="toggleTag(this,'Italian')">🇮🇹 Italian</button>
-          <button class="tag-opt" onclick="toggleTag(this,'Asian')">🥢 Asian</button>
-          <button class="tag-opt" onclick="toggleTag(this,'British')">🇬🇧 British</button>
-          <button class="tag-opt" onclick="toggleTag(this,'Mediterranean')">🫒 Mediterranean</button>
-          <button class="tag-opt" onclick="toggleTag(this,'Mexican')">🌮 Mexican</button>
-          <button class="tag-opt" onclick="toggleTag(this,'Comfort')">🍲 Comfort</button>
-          <button class="tag-opt" onclick="toggleTag(this,'Seafood')">🦞 Seafood</button>
-          <button class="tag-opt" onclick="toggleTag(this,'Vegan')">🌱 Vegan</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Notes (optional)</label>
-        <textarea id="meal-notes" rows="2" placeholder="Any special details, dietary notes…"></textarea>
-      </div>
-      <button class="btn-submit" id="submit-btn" onclick="addMeal()">Add to Board ✦</button>
-    </div>
-
-    <div class="filter-bar">
-      <button class="filter-chip active" onclick="setFilter('All', this)">All</button>
-      <button class="filter-chip" onclick="setFilter('Dad', this)">Dad</button>
-      <button class="filter-chip" onclick="setFilter('Mum', this)">Mum</button>
-      <button class="filter-chip" onclick="setFilter('Daughter', this)">Daughter</button>
-    </div>
-
-    <div class="meals-grid" id="meals-grid"></div>
+<nav class="top-bar">
+  <div class="brand">Frisby <span>Family</span><span class="sync-dot" id="syncDot"></span></div>
+  <div class="tab-pills">
+    <button class="tab-pill active" onclick="switchView('planner',this)">Weekly Planner</button>
+    <button class="tab-pill" onclick="switchView('votes',this)">⭐ Client Meals</button>
   </div>
-
-  <!-- WEEK VIEW -->
-  <div class="view" id="view-week">
-    <div class="week-grid" id="week-grid"></div>
+  <div class="member-select">
+    <button class="member-btn active-all" data-m="All" onclick="setMember('All',this)">All</button>
+    <button class="member-btn" data-m="Christian" onclick="setMember('Christian',this)">Christian</button>
+    <button class="member-btn" data-m="Rachelle" onclick="setMember('Rachelle',this)">Rachelle</button>
+    <button class="member-btn" data-m="Victoria" onclick="setMember('Victoria',this)">Victoria</button>
   </div>
-
-  <!-- MONTH VIEW -->
-  <div class="view" id="view-month">
-    <div id="month-header" style="text-align:center;margin-bottom:14px;">
-      <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;" id="month-label"></span>
-    </div>
-    <div class="month-grid" id="month-grid"></div>
-    <div id="month-day-meals" style="margin-top:10px;"></div>
-  </div>
-
-  <!-- CLIENT MENU VIEW -->
-  <div class="view" id="view-client">
-    <div class="client-section">
-      <div class="section-title"><span>⭐</span> Saved for Clients</div>
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.5;">
-        These dishes stood out. Use them to inspire your client menus.
-      </p>
-      <div id="client-list"></div>
-      <div id="client-empty" class="empty" style="display:none">
-        <div class="emoji">👨‍🍳</div>
-        <p>Hit the ⭐ on any meal idea to save it here for your clients.</p>
-      </div>
+</nav>
+<div class="view active" id="view-planner">
+  <div class="week-header">
+    <div class="week-title">Weekly Planner<small id="weekRange"></small></div>
+    <div class="week-nav">
+      <button onclick="changeWeek(-1)">&#8592;</button>
+      <span id="weekLabel">This Week</span>
+      <button onclick="changeWeek(1)">&#8594;</button>
     </div>
   </div>
-
-</main>
-
-<button class="fab" onclick="toggleForm()" title="Add meal idea">+</button>
+  <div class="stats-row">
+    <div class="stat-card"><div class="val" id="sPlanned">0</div><div class="lbl">Meals Planned</div></div>
+    <div class="stat-card"><div class="val" id="sDays">0</div><div class="lbl">Days Covered</div></div>
+    <div class="stat-card"><div class="val" id="sLeft">7</div><div class="lbl">Days to Fill</div></div>
+    <div class="stat-card"><div class="val" id="sVotes">0</div><div class="lbl">Client Shortlist</div></div>
+  </div>
+  <div class="meal-grid" id="mealGrid"></div>
+</div>
+<div class="view" id="view-votes">
+  <div class="vote-header">
+    <h2>Client Meal Shortlist</h2>
+    <p>Rate meals as a family — stars decide what makes the cut for clients. Updates live across all devices.</p>
+  </div>
+  <div class="vote-add-row">
+    <input class="vote-input" id="vAddInput" placeholder="Type a meal name to add…" onkeydown="if(event.key==='Enter')addVote()">
+    <button class="btn-add" onclick="addVote()">+ Add Meal</button>
+  </div>
+  <div class="vote-grid" id="voteGrid"></div>
+</div>
 <div class="toast" id="toast"></div>
-
-<!-- FIREBASE -->
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal">
+    <h3>Send to Client Votes ⭐</h3>
+    <p>Choose a meal from this day:</p>
+    <div class="modal-meals" id="modalMeals"></div>
+    <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import {
-    getFirestore, collection, addDoc, deleteDoc, updateDoc,
-    doc, onSnapshot, query, orderBy, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  // ─── FIREBASE CONFIG ──────────────────────────────────────────────────────
-  const firebaseConfig = {
-    apiKey: "AIzaSyCal0J6FYQ4-vksw4t1AsciPk-UHDX6d6U",
-    authDomain: "family-planner-menu.firebaseapp.com",
-    projectId: "family-planner-menu",
-    storageBucket: "family-planner-menu.firebasestorage.app",
-    messagingSenderId: "976273892960",
-    appId: "1:976273892960:web:737c9e1bffe03a6d4dc505"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const mealsCol = collection(db, "meals");
-
-  // ─── STATE ────────────────────────────────────────────────────────────────
-  let currentWho = 'Dad';
-  let currentFilter = 'All';
-  let selectedTag = '';
-  let showForm = false;
-  let meals = [];
-  const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-
-  // ─── SYNC STATUS ──────────────────────────────────────────────────────────
-  function setSyncStatus(status) {
-    const dot = document.getElementById('sync-dot');
-    const label = document.getElementById('sync-label');
-    const bar = document.getElementById('sync-bar');
-    dot.className = 'sync-dot ' + status;
-    bar.className = 'sync-bar ' + (status === 'live' ? '' : status);
-    label.textContent = status === 'live' ? 'Live' : status === 'syncing' ? 'Syncing…' : 'Offline';
-  }
-
-  // ─── REAL-TIME LISTENER ───────────────────────────────────────────────────
-  const q = query(mealsCol, orderBy("date", "desc"));
-
-  onSnapshot(q, (snapshot) => {
-    meals = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-    setSyncStatus('live');
-    document.getElementById('loading-overlay').classList.add('hidden');
-    renderMeals();
-    updateStats();
-    const activeTab = document.querySelector('.view.active')?.id;
-    if (activeTab === 'view-week') renderWeek();
-    if (activeTab === 'view-month') renderMonth();
-    if (activeTab === 'view-client') renderClient();
-  }, (error) => {
-    setSyncStatus('error');
-    document.getElementById('loading-overlay').classList.add('hidden');
-    showToast('⚠️ Connection issue — check your internet');
-  });
-
-  // ─── WHO ──────────────────────────────────────────────────────────────────
-  window.setWho = function(who) {
-    currentWho = who;
-    document.querySelectorAll('.family-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('btn-' + who)?.classList.add('active');
-    const sel = document.getElementById('meal-who');
-    if (sel) sel.value = who;
-  };
-
-  // ─── TABS ─────────────────────────────────────────────────────────────────
-  window.switchTab = function(tab, btn) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('view-' + tab).classList.add('active');
-    if (btn) btn.classList.add('active');
-    if (tab === 'week') renderWeek();
-    if (tab === 'month') renderMonth();
-    if (tab === 'client') renderClient();
-    if (tab === 'ideas') renderMeals();
-  };
-
-  // ─── FORM ─────────────────────────────────────────────────────────────────
-  window.toggleForm = function() {
-    showForm = !showForm;
-    const f = document.getElementById('add-form');
-    const t = document.getElementById('add-trigger');
-    f.style.display = showForm ? 'block' : 'none';
-    t.style.display = showForm ? 'none' : 'flex';
-    if (showForm) {
-      document.getElementById('meal-who').value = currentWho;
-      document.getElementById('meal-name').focus();
-    }
-  };
-
-  window.toggleTag = function(btn, tag) {
-    document.querySelectorAll('.tag-opt').forEach(b => b.classList.remove('selected'));
-    if (selectedTag === tag) { selectedTag = ''; }
-    else { selectedTag = tag; btn.classList.add('selected'); }
-  };
-
-  // ─── ADD MEAL ─────────────────────────────────────────────────────────────
-  window.addMeal = async function() {
-    const name = document.getElementById('meal-name').value.trim();
-    if (!name) { showToast('Please enter a meal name!'); return; }
-
-    const submitBtn = document.getElementById('submit-btn');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Adding…';
-    setSyncStatus('syncing');
-
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyCal0J6FYQ4-vksw4t1AsciPk-UHDX6d6U",
+  authDomain: "family-planner-menu.firebaseapp.com",
+  projectId: "family-planner-menu",
+  storageBucket: "family-planner-menu.firebasestorage.app",
+  messagingSenderId: "976273892960",
+  appId: "1:976273892960:web:737c9e1bffe03a6d4dc505"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const MEMBERS = ['Christian','Rachelle','Victoria'];
+const DAYS    = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const MEALS   = ['Breakfast','Lunch','Dinner'];
+let weekOffset = 0;
+let plannerData = {};
+let votesData   = [];
+let saveTimer   = null;
+let unsubPlanner = null;
+let unsubVotes   = null;
+function getMonday(offset) {
+  offset = offset ?? weekOffset;
+  const d = new Date();
+  const day = d.getDay() || 7;
+  d.setDate(d.getDate() - day + 1 + offset * 7);
+  d.setHours(0,0,0,0);
+  return d;
+}
+function getDates() {
+  const mon = getMonday();
+  return DAYS.map((_,i) => { const d=new Date(mon); d.setDate(d.getDate()+i); return d; });
+}
+function getWeekKey() { return getMonday().toISOString().slice(0,10); }
+function fmt(d) { return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
+function isToday(d) { const n=new Date(); return d.getDate()===n.getDate()&&d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear(); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function toast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.color = color||'#90e090'; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+function setSyncDot(state) {
+  const dot = document.getElementById('syncDot');
+  dot.className = 'sync-dot'+(state==='live'?' live':state==='saving'?' saving':'');
+}
+window.switchView = function(id, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab-pill').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  btn.classList.add('active');
+};
+window.setMember = function(m, btn) {
+  document.querySelectorAll('.member-btn').forEach(b => b.classList.remove('active','active-all'));
+  btn.classList.add(m==='All'?'active-all':'active');
+  document.body.className = m==='All'?'':'filter-'+m;
+};
+window.changeWeek = function(dir) { weekOffset += dir; subscribeToPlanner(); };
+function plannerDocId() { return 'week-'+getWeekKey(); }
+function subscribeToPlanner() {
+  if(unsubPlanner) unsubPlanner();
+  const ref = doc(db,'planner',plannerDocId());
+  updateWeekHeader();
+  unsubPlanner = onSnapshot(ref, snap => {
+    plannerData = snap.exists() ? (snap.data().days||{}) : {};
+    renderPlanner(); setSyncDot('live');
+  }, () => setSyncDot(''));
+}
+function savePlannerDebounced() {
+  setSyncDot('saving'); clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
     try {
-      await addDoc(mealsCol, {
-        name,
-        who: document.getElementById('meal-who').value,
-        when: document.getElementById('meal-when').value,
-        tag: selectedTag,
-        notes: document.getElementById('meal-notes').value.trim(),
-        votes: 0,
-        votedBy: [],
-        clientSaved: false,
-        date: serverTimestamp()
-      });
-
-      document.getElementById('meal-name').value = '';
-      document.getElementById('meal-notes').value = '';
-      document.getElementById('meal-when').value = '';
-      document.querySelectorAll('.tag-opt').forEach(b => b.classList.remove('selected'));
-      selectedTag = '';
-      toggleForm();
-      showToast('🍽 Meal added to the board!');
-    } catch(e) {
-      showToast('⚠️ Failed to add meal');
-      setSyncStatus('error');
-    }
-
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Add to Board ✦';
-  };
-
-  // ─── VOTE ─────────────────────────────────────────────────────────────────
-  window.vote = async function(id) {
-    const m = meals.find(x => x.id === id);
-    if (!m) return;
-    setSyncStatus('syncing');
-    const votedBy = m.votedBy || [];
-    let newVotedBy, newVotes;
-    if (votedBy.includes(currentWho)) {
-      newVotedBy = votedBy.filter(w => w !== currentWho);
-      newVotes = Math.max(0, (m.votes || 1) - 1);
-      showToast('Vote removed');
-    } else {
-      newVotedBy = [...votedBy, currentWho];
-      newVotes = (m.votes || 0) + 1;
-      showToast('👍 Voted!');
-    }
-    try {
-      await updateDoc(doc(db, "meals", id), { votes: newVotes, votedBy: newVotedBy });
-    } catch(e) { showToast('⚠️ Update failed'); }
-  };
-
-  // ─── CLIENT TOGGLE ────────────────────────────────────────────────────────
-  window.toggleClient = async function(id) {
-    const m = meals.find(x => x.id === id);
-    if (!m) return;
-    setSyncStatus('syncing');
-    try {
-      await updateDoc(doc(db, "meals", id), { clientSaved: !m.clientSaved });
-      showToast(m.clientSaved ? 'Removed from client menu' : '⭐ Saved to client menu!');
-    } catch(e) { showToast('⚠️ Update failed'); }
-  };
-
-  // ─── DELETE ───────────────────────────────────────────────────────────────
-  window.deleteMeal = async function(id) {
-    setSyncStatus('syncing');
-    try {
-      await deleteDoc(doc(db, "meals", id));
-      showToast('Meal removed');
-    } catch(e) { showToast('⚠️ Delete failed'); }
-  };
-
-  // ─── FILTER ───────────────────────────────────────────────────────────────
-  window.setFilter = function(f, btn) {
-    currentFilter = f;
-    document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderMeals();
-  };
-
-  // ─── RENDER MEALS ─────────────────────────────────────────────────────────
-  function renderMeals() {
-    const grid = document.getElementById('meals-grid');
-    let filtered = currentFilter === 'All' ? meals : meals.filter(m => m.who === currentFilter);
-    if (!filtered.length) {
-      grid.innerHTML = `<div class="empty"><div class="emoji">🍴</div><p>No meal ideas yet — add the first one!</p></div>`;
-      return;
-    }
-    grid.innerHTML = filtered.map(m => mealCardHTML(m)).join('');
-    updateStats();
-  }
-
-  function mealCardHTML(m) {
-    return `
-    <div class="meal-card" data-who="${m.who}" id="card-${m.id}">
-      ${m.clientSaved ? `<div class="client-star">⭐ Client</div>` : ''}
-      <div class="meal-top">
-        <div class="meal-name">${m.name}</div>
-        <div class="meal-actions">
-          <span class="vote-count">${m.votes || ''}</span>
-          <button class="action-btn ${(m.votedBy||[]).includes(currentWho) ? 'voted' : ''}"
-            onclick="vote('${m.id}')" title="Love this!">👍</button>
-          <button class="action-btn ${m.clientSaved ? 'saved' : ''}"
-            onclick="toggleClient('${m.id}')" title="Save to client menu">⭐</button>
-          <button class="action-btn" onclick="deleteMeal('${m.id}')" title="Remove">✕</button>
-        </div>
-      </div>
-      <div class="meal-meta">
-        <div class="who-badge" data-who="${m.who}">
-          <div class="who-dot"></div>
-          <span>${m.who}</span>
-        </div>
-        ${m.tag ? `<span class="tag">${m.tag}</span>` : ''}
-        ${m.when ? `<span class="tag">📅 ${m.when}</span>` : ''}
-      </div>
-      ${m.notes ? `<div class="meal-notes">"${m.notes}"</div>` : ''}
-    </div>`;
-  }
-
-  // ─── STATS ────────────────────────────────────────────────────────────────
-  function updateStats() {
-    document.getElementById('stat-total').textContent = meals.length;
-    document.getElementById('stat-votes').textContent = meals.reduce((a,m) => a + (m.votes||0), 0);
-    document.getElementById('stat-client').textContent = meals.filter(m => m.clientSaved).length;
-  }
-
-  // ─── WEEK VIEW ────────────────────────────────────────────────────────────
-  window.renderWeek = function() {
-    const grid = document.getElementById('week-grid');
-    grid.innerHTML = DAYS.map(day => {
-      const dayMeals = meals.filter(m => m.when === day);
-      return `
-      <div class="day-row">
-        <div class="day-header">
-          <div class="day-name">${day}</div>
-          <div class="day-date">${getDayDate(day)}</div>
-        </div>
-        <div class="day-meals">
-          ${dayMeals.length ? dayMeals.map(m => `
-            <div class="day-meal-item">
-              <div class="day-meal-dot" style="background:${whoColor(m.who)}"></div>
-              <span style="flex:1">${m.name}</span>
-              <span style="font-size:11px;color:var(--text-muted)">${m.tag || ''}</span>
-            </div>
-          `).join('') : '<span style="font-size:13px;color:var(--text-muted)">Nothing planned yet</span>'}
-          <button class="assign-btn" onclick="showAssign('${day}')">+ Assign meal</button>
-        </div>
-      </div>`;
+      await setDoc(doc(db,'planner',plannerDocId()), { days: plannerData }, { merge: true });
+      setSyncDot('live'); toast('✓ Saved!');
+    } catch(e) { toast('⚠ Save failed','#e07060'); setSyncDot(''); }
+  }, 900);
+}
+function getPlan(di,meal,m) { return plannerData[di]?.[meal]?.[m]||''; }
+function setPlan(di,meal,m,val) {
+  if(!plannerData[di]) plannerData[di]={};
+  if(!plannerData[di][meal]) plannerData[di][meal]={};
+  plannerData[di][meal][m]=val;
+}
+function updateWeekHeader() {
+  const dates = getDates();
+  document.getElementById('weekRange').textContent = fmt(dates[0])+' – '+fmt(dates[6]);
+  document.getElementById('weekLabel').textContent =
+    weekOffset===0?'This Week':weekOffset===1?'Next Week':weekOffset===-1?'Last Week':(weekOffset>0?'+':'')+weekOffset+' wks';
+}
+function renderPlanner() {
+  updateWeekHeader();
+  const dates = getDates();
+  const grid = document.getElementById('mealGrid');
+  grid.innerHTML = '';
+  let totMeals=0, totDays=0;
+  DAYS.forEach((day,di) => {
+    let dayHas=false;
+    const card = document.createElement('div');
+    card.className = 'day-card'+(isToday(dates[di])?' today':'');
+    card.style.animationDelay = (di*0.05)+'s';
+    const bodyHTML = MEALS.map(meal => {
+      const rows = MEMBERS.map(m => {
+        const val = getPlan(di,meal,m);
+        if(val.trim()){totMeals++;dayHas=true;}
+        return `<div class="member-meal-row ${m}"><div class="member-dot ${m}"></div><input class="meal-input ${m}" type="text" placeholder="${m}…" value="${esc(val)}" data-di="${di}" data-meal="${meal}" data-m="${m}"></div>`;
+      }).join('');
+      return `<div class="meal-row"><div class="meal-type-label">${meal}</div><div class="meal-inputs">${rows}</div></div>`;
     }).join('');
-  };
-
-  function getDayDate(dayName) {
-    const today = new Date();
-    const dayIdx = DAYS.indexOf(dayName);
-    const todayIdx = today.getDay() === 0 ? 6 : today.getDay() - 1;
-    const diff = dayIdx - todayIdx;
-    const d = new Date(today);
-    d.setDate(d.getDate() + diff);
-    return d.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+    if(dayHas) totDays++;
+    card.innerHTML = `
+      <div class="day-card-head">
+        <div><div class="day-name">${day}</div><div class="day-date">${fmt(dates[di])}</div></div>
+        ${isToday(dates[di])?'<span class="today-tag">Today</span>':''}
+      </div>
+      <div class="day-card-body">${bodyHTML}<button class="send-client-btn" data-di="${di}">⭐ Add a meal to Client Shortlist</button></div>`;
+    card.querySelectorAll('.meal-input').forEach(inp => {
+      inp.addEventListener('input', e => {
+        setPlan(+e.target.dataset.di,e.target.dataset.meal,e.target.dataset.m,e.target.value);
+        savePlannerDebounced(); refreshStats();
+      });
+    });
+    card.querySelector('.send-client-btn').addEventListener('click', () => openModal(di));
+    grid.appendChild(card);
+  });
+  document.getElementById('sPlanned').textContent=totMeals;
+  document.getElementById('sDays').textContent=totDays;
+  document.getElementById('sLeft').textContent=7-totDays;
+}
+function refreshStats() {
+  let t=0,d=0;
+  DAYS.forEach((_,di)=>{
+    let h=false;
+    MEALS.forEach(meal=>MEMBERS.forEach(m=>{if(getPlan(di,meal,m).trim()){t++;h=true;}}));
+    if(h)d++;
+  });
+  document.getElementById('sPlanned').textContent=t;
+  document.getElementById('sDays').textContent=d;
+  document.getElementById('sLeft').textContent=7-d;
+}
+window.closeModal = function(e) {
+  if(!e||e.target===document.getElementById('modalBg'))
+    document.getElementById('modalBg').classList.remove('open');
+};
+function openModal(di) {
+  const meals=[];
+  MEALS.forEach(meal=>MEMBERS.forEach(m=>{
+    const v=getPlan(di,meal,m).trim();
+    if(v&&!meals.includes(v))meals.push(v);
+  }));
+  if(!meals.length){toast('Add some meals first!','#e0c060');return;}
+  const container=document.getElementById('modalMeals');
+  container.innerHTML=meals.map(name=>`<button class="modal-meal-btn">${esc(name)}</button>`).join('');
+  container.querySelectorAll('.modal-meal-btn').forEach((btn,i)=>{
+    btn.addEventListener('click',()=>{sendToVotes(meals[i]);document.getElementById('modalBg').classList.remove('open');});
+  });
+  document.getElementById('modalBg').classList.add('open');
+}
+function subscribeToVotes() {
+  if(unsubVotes) unsubVotes();
+  unsubVotes = onSnapshot(collection(db,'votes'), snap => {
+    votesData = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderVotes();
+    document.getElementById('sVotes').textContent=votesData.length;
+  });
+}
+async function sendToVotes(name) {
+  if(votesData.find(v=>v.name.toLowerCase()===name.toLowerCase())){toast('Already on shortlist!','#e0c060');return;}
+  await addDoc(collection(db,'votes'),{name,ratings:{},note:''});
+  toast('⭐ Added to Client Shortlist!');
+}
+window.addVote = async function() {
+  const inp=document.getElementById('vAddInput');
+  const name=inp.value.trim();
+  if(!name)return;
+  if(votesData.find(v=>v.name.toLowerCase()===name.toLowerCase())){toast('Already on the list!','#e0c060');return;}
+  await addDoc(collection(db,'votes'),{name,ratings:{},note:''});
+  inp.value='';
+};
+async function deleteVote(id){ await deleteDoc(doc(db,'votes',id)); }
+async function setRating(id,m,stars){
+  const v=votesData.find(x=>x.id===id);
+  if(!v)return;
+  const newRatings={...v.ratings,[m]:v.ratings[m]===stars?0:stars};
+  await updateDoc(doc(db,'votes',id),{ratings:newRatings});
+}
+async function setNote(id,val){ await updateDoc(doc(db,'votes',id),{note:val}); }
+function avgRating(vote){
+  const vals=Object.values(vote.ratings||{}).filter(x=>x>0);
+  if(!vals.length)return null;
+  return (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+}
+function statusLabel(avg){
+  if(avg===null)return '';
+  if(avg>=4)return '<span class="vote-status great">✓ Great pick</span>';
+  if(avg>=2.5)return '<span class="vote-status good">~ Worth considering</span>';
+  return '<span class="vote-status maybe">✗ Maybe not</span>';
+}
+function renderVotes(){
+  const grid=document.getElementById('voteGrid');
+  if(!votesData.length){
+    grid.innerHTML=`<div class="empty-state"><div class="icon">⭐</div><p>No meals on the shortlist yet.<br>Add one above or tap a day card in the planner.</p></div>`;
+    return;
   }
-
-  window.showAssign = function(day) {
-    switchTab('ideas', document.querySelector('.tab'));
-    document.querySelectorAll('.tab').forEach((t,i) => { if(i===0) t.classList.add('active'); else t.classList.remove('active'); });
-    if (!showForm) toggleForm();
-    setTimeout(() => { document.getElementById('meal-when').value = day; }, 100);
-  };
-
-  function whoColor(who) {
-    return { Dad:'var(--accent)', Mum:'var(--pink)', Daughter:'var(--blue)', Everyone:'var(--green)' }[who] || 'var(--accent)';
-  }
-
-  // ─── MONTH VIEW ───────────────────────────────────────────────────────────
-  window.renderMonth = function() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    document.getElementById('month-label').textContent = now.toLocaleString('default', { month: 'long', year: 'numeric' });
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const startOffset = firstDay === 0 ? 6 : firstDay - 1;
-    const labels = ['Mo','Tu','We','Th','Fr','Sa','Su'];
-    let html = labels.map(l => `<div class="month-day-label">${l}</div>`).join('');
-    for (let i = 0; i < startOffset; i++) html += `<div class="month-day empty-day"></div>`;
-    for (let d = 1; d <= daysInMonth; d++) {
-      const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const isToday = d === now.getDate();
-      const hasMeal = meals.some(m => m.date && m.date.toDate && m.date.toDate().toISOString().startsWith(dateStr));
-      html += `<div class="month-day ${isToday?'today':''} ${hasMeal?'has-meal':''}" onclick="selectMonthDay(${d}, '${dateStr}')">
-        <div class="month-day-num">${d}</div>
-        ${hasMeal ? '<div class="month-dot"></div>' : ''}
+  grid.innerHTML='';
+  const colors={Christian:'var(--christian)',Rachelle:'var(--rachelle)',Victoria:'var(--victoria)'};
+  votesData.forEach((vote,vi)=>{
+    const avg=avgRating(vote);
+    const card=document.createElement('div');
+    card.className='vote-card';
+    card.style.animationDelay=(vi*0.06)+'s';
+    const memberRows=MEMBERS.map(m=>{
+      const r=vote.ratings?.[m]||0;
+      const stars=[1,2,3,4,5].map(s=>`<span class="star${s<=r?' lit':''}" data-id="${vote.id}" data-m="${m}" data-s="${s}">★</span>`).join('');
+      return `<div class="vote-member-row"><div class="vote-member-name"><span style="width:8px;height:8px;border-radius:50%;background:${colors[m]};display:inline-block;flex-shrink:0"></span>${m}</div><div class="stars">${stars}</div></div>`;
+    }).join('');
+    card.innerHTML=`
+      <div class="vote-card-head"><div class="vote-meal-name">${esc(vote.name)}</div><button class="vote-delete" data-id="${vote.id}">✕</button></div>
+      <div class="vote-card-body">
+        ${memberRows}
+        ${avg!==null?`<div class="vote-avg"><span>Average: <strong>${avg}/5</strong></span>${statusLabel(avg)}</div>`:''}
+        <textarea class="vote-note" placeholder="Notes (allergens, tweaks…)" rows="2" data-id="${vote.id}">${esc(vote.note||'')}</textarea>
       </div>`;
-    }
-    document.getElementById('month-grid').innerHTML = html;
-  };
-
-  window.selectMonthDay = function(d, dateStr) {
-    const dayMeals = meals.filter(m => m.date && m.date.toDate && m.date.toDate().toISOString().startsWith(dateStr));
-    const el = document.getElementById('month-day-meals');
-    if (!dayMeals.length) {
-      el.innerHTML = `<p style="text-align:center;font-size:13px;color:var(--text-muted);padding:16px">No meals added on this date.</p>`;
-    } else {
-      el.innerHTML = `<div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;margin-bottom:10px">Meals on the ${d}th</div>` +
-        dayMeals.map(m => `
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px">
-          <div style="width:8px;height:8px;border-radius:50%;background:${whoColor(m.who)};flex-shrink:0"></div>
-          <div style="flex:1"><div style="font-weight:600;font-size:14px">${m.name}</div>
-          <div style="font-size:11px;color:var(--text-muted)">${m.who} · ${m.tag||'No tag'}</div></div>
-        </div>`).join('');
-    }
-  };
-
-  // ─── CLIENT VIEW ──────────────────────────────────────────────────────────
-  window.renderClient = function() {
-    const saved = meals.filter(m => m.clientSaved);
-    const list = document.getElementById('client-list');
-    const empty = document.getElementById('client-empty');
-    if (!saved.length) {
-      list.innerHTML = '';
-      empty.style.display = 'block';
-      return;
-    }
-    empty.style.display = 'none';
-    list.innerHTML = saved.map(m => `
-      <div class="client-card">
-        <div>
-          <div class="client-meal-name">${m.name}</div>
-          <div class="client-meal-tag">${m.tag || 'No tag'} · Suggested by ${m.who}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px">
-          ${m.votes ? `<div class="client-votes">👍 ${m.votes}</div>` : ''}
-          <button class="remove-client-btn" onclick="toggleClient('${m.id}')">✕</button>
-        </div>
-      </div>`).join('');
-  };
-
-  // ─── TOAST ────────────────────────────────────────────────────────────────
-  window.showToast = function(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2200);
-  };
-
+    card.querySelectorAll('.star').forEach(s=>{
+      s.addEventListener('click',e=>setRating(e.target.dataset.id,e.target.dataset.m,+e.target.dataset.s));
+      s.addEventListener('mouseover',e=>{
+        const row=e.target.closest('.stars');
+        const hov=+e.target.dataset.s;
+        row.querySelectorAll('.star').forEach((st,i)=>st.style.color=i<hov?'var(--accent)':'#ddd');
+      });
+      s.addEventListener('mouseout',e=>{
+        const row=e.target.closest('.stars');
+        const id=e.target.dataset.id,m=e.target.dataset.m;
+        const r=(votesData.find(v=>v.id===id)?.ratings?.[m])||0;
+        row.querySelectorAll('.star').forEach((st,i)=>st.style.color=i<r?'var(--accent)':'#ddd');
+      });
+    });
+    card.querySelector('.vote-delete').addEventListener('click',e=>deleteVote(e.target.dataset.id));
+    let noteTimer;
+    card.querySelector('.vote-note').addEventListener('input',e=>{
+      clearTimeout(noteTimer);
+      noteTimer=setTimeout(()=>setNote(e.target.dataset.id,e.target.value),800);
+    });
+    grid.appendChild(card);
+  });
+}
+setTimeout(()=>{
+  document.getElementById('loadingScreen').classList.add('hide');
+  setTimeout(()=>document.getElementById('loadingScreen').style.display='none',500);
+},1200);
+subscribeToPlanner();
+subscribeToVotes();
 </script>
-
 </body>
 </html>
